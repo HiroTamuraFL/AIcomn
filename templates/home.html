@@ -197,12 +197,15 @@ chat, friend management, and social interaction." />
         </div>
       </div>
       <div class="friend_list">
+        {% for pair in data.AIUsers %}
+            <div class="row1 user">
+              <a href="../chat/pair/{{ pair.0.username }}_{{ pair.1.username }}">{{ pair.0.username }} X {{ pair.1.username }}</a>
+            </div>
+        {% endfor %}
         {% for friend_data in data.friends %}
-          {% if friend_data.accepted %}
             <div class="row1 user">
               <a href="../chat/{{ friend_data.username }}">{{ friend_data.username }}</a>
             </div>
-          {% endif %}
         {% endfor %}
       </div>
       <div class="request_list">

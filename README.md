@@ -135,3 +135,12 @@ Here are some screenshots from the Django Chat Application:
 
 ![Profile](https://filesstatic.netlify.app/Chatapp/img/user.png)
 
+
+追記ollama
+!pip install llama-index
+!pip install llama-index-llms-ollama
+!pip install llama-index-embeddings-huggingface
+
+$2B Parameters ollama run gemma2:2b
+$9B Parameters ollama run gemma2
+$27B Parameters ollama run gemma2:27b

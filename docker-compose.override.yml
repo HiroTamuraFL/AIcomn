@@ -1,0 +1,11 @@
+#version: '3.8'
+
+services:
+  stable-diffusion:
+    extends:
+      file: ./stable-diffusion-webui-docker/docker-compose.yml
+      service: auto  # 子ファイル内で定義されているサービス名
+    profiles:
+      - auto
+    networks:
+      - my_network

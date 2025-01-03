@@ -32,6 +32,25 @@ chat, friend management, and social interaction." />
         padding: 0%;
         box-sizing: border-box;
       }
+
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      
+      ::-webkit-scrollbar-thumb {
+        background-color: white;
+      }
+      
+      ::-webkit-scrollbar-thumb {
+        background-color: #374045;
+      }
+      
+      ::-webkit-scrollbar-track {
+        background-color: transparent;
+      }
+
+
       body {
         background-color: #131518;
         font-family: century gothic;
@@ -69,7 +88,11 @@ chat, friend management, and social interaction." />
       }
       
       #login-fields {
+        height: 280px;
         width: 100%;
+        display: flex;
+        flex-direction: column;
+        overflow-y: scroll;
       }
       
       #login-fields input {
@@ -160,26 +183,85 @@ chat, friend management, and social interaction." />
           width: 90%;
         }
       }
+      /* トグルスイッチ全体のスタイル */
+      .toggle-switch {
+          position: relative;
+          left: 320px;
+          width: 60px;
+          height: 30px;
+      }
+
+      /* チェックボックスは非表示にする */
+      .toggle-switch input {
+          opacity: 0;
+          width: 0;
+          height: 0;
+      }
+
+      /* トグルのスライダー */
+      .slider {
+          position: absolute;
+          cursor: pointer;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: #ccc;
+          border-radius: 30px;
+          transition: background-color 0.3s;
+      }
+
+      /* トグルの丸い部分 */
+      .slider::before {
+          position: absolute;
+          content: "";
+          height: 24px;
+          width: 24px;
+          left: 3px;
+          bottom: 3px;
+          background-color: white;
+          border-radius: 50%;
+          transition: transform 0.3s;
+      }
+
+      /* チェックが入ったときのスライダーの色と丸の位置 */
+      input:checked + .slider {
+          background-color: #4caf50;
+      }
+
+      input:checked + .slider::before {
+          transform: translateX(30px);
+      }
     </style>
   </head>
   <body>
     <div class="container">
-      <br />
-      <br />
-      <br />
       <div id="login-header">
         <div id="title">Edit</div>
       </div>
       <br />
       <br />
-      <br />
-      <form method="post" onsubmit="return validateUsername()">
+      <form method="post" enctype="multipart/form-data" onsubmit="return validateUsername()">
         {% csrf_token %}
         <div id="login-fields">
+          <label for="username">Icon</label>
+          <input type="file" name="icon" id="icon" class="form-control" onchange="previewFile(this);"/>
+          <img id="preview">
           <label for="username">Username</label>
           <input type="text" name="username" id="username" class="form-control" value="{{ initial_data.username }}" required autocapitalize="none" />
           <label for="username">Email</label>
           <input type="email" name="email" id="email" class="form-control" value="{{ initial_data.email }}" required />
+          <label for="username">Age</label>
+          <input type="prof1" name="age" id="prof1" class="form-control" autocapitalize="none" value="{{ initial_data.age }}"/>
+          <label for="username">Job</label>
+          <input type="prof2" name="job" id="prof1" class="form-control" autocapitalize="none" />
+          <label for="isAI">AI</label>
+            <label class="toggle-switch">
+            <input type="checkbox" name="isAI" id="isAI" {% if initial_data.is_AI %}checked{% endif %}>
+            <span class="slider"></span>
+          </label>
+
+    
         </div>
         <div id="password-relative">
           <div>
@@ -212,6 +294,15 @@ chat, friend management, and social interaction." />
         }
       
         return true // Allow form submission if there are no spaces
+      }
+      function previewFile(hoge){
+        var fileData = new FileReader();
+        fileData.onload = (function() {
+          //id属性が付与されているimgタグのsrc属性に、fileReaderで取得した値の結果を入力することで
+          //プレビュー表示している
+          document.getElementById('preview').src = fileData.result;
+        });
+        fileData.readAsDataURL(hoge.files[0]);
       }
     </script>
   </body>

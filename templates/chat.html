@@ -63,8 +63,13 @@ chat, friend management, and social interaction." />
         font-family: sans-serif;
         color: aliceblue;
       }
+      .split_container {
+        display: flex;
+        width: 100%;
+      }
       .outer {
-        max-width: 500px;
+        max-width: 40%;
+        width: 70%;
         margin: auto;
         position: relative;
         top: 30px;
@@ -76,7 +81,20 @@ chat, friend management, and social interaction." />
         box-shadow: 4px 4px 10px -4px #9339f5;
         overflow-y: hidden;
       }
-      @media screen and (max-width: 550px) {
+
+      .side {
+        width: 30%; /* 左右の幅 */
+        display: flex;
+        flex-direction: column;
+        justify-content: center; /* 横方向の中央揃え */
+      }
+      .left_side {
+        top: 10px;
+      }
+      .right_side {
+        bottom: 10px;
+      }
+      @media screen and (max-width: 800px) {
         .outer {
           top: 50px;
           max-width: 550px;
@@ -107,11 +125,96 @@ chat, friend management, and social interaction." />
         text-align: center;
         flex-grow: 1;
       }
+      
       .messages {
-        height: 84%;
+        height: 80%;
         display: flex;
         flex-direction: column;
         overflow-y: auto;
+      }
+      .small {
+        display: none;
+      }
+      @media(max-width: 800px) {
+        .messages {
+          height: 55%;
+          display: flex;
+          flex-direction: column;
+          overflow-y: auto;
+        }
+        .small {
+          display: block;
+        }
+      }
+      .icon_container {
+        position: relative; /* 画像の基準となるコンテナを相対的に設定 */
+        height: 120px; /* コンテナの高さを指定 */
+      }
+      .left_icon {
+        position: absolute;
+        left: 20px; /* 左端から20pxの距離 */
+        width: auto;
+        max-height: 120px;
+      }
+      .right_icon {
+        position: absolute;
+        right: 20px; /* 右端から20pxの距離 */
+        width: auto;
+        max-height: 120px;
+      }
+      .caption {
+        position: absolute;
+        background-color: rgba(0, 0, 0, 0.5); /* 背景を半透明にして見やすくする */
+        color: white;
+        padding: 5px;
+        font-size: 14px;
+      }
+      .left_caption {
+        left: 30%;
+        top: 0; /* 下に固定 */
+      }
+      .right_caption {
+        right: 30%;
+        bottom: 0; /* 下に固定 */
+      }
+      .large{
+        display: block;
+      }
+      @media (max-width: 800px) {
+        .large {
+          display: none;
+        }
+      }
+      .icon_large{
+        position: relative;
+        width: auto;
+        padding: 15px;
+        max-width: 85%;
+      }
+      .left_icon_large {
+        left: 5%;
+        right: 5%; /* 左端から20pxの距離 */
+      }
+      .right_icon_large {
+        left: 5%; /* 右端から20pxの距離 */
+        right: 5%;
+      }
+      .caption_large_block {
+        display: block;
+        position: relative;
+        height: 40%;
+        font-size: 16px;
+        color: #ffffff;
+      }
+      .caption_large {
+        position: absolute;
+        left: 10%;
+      }
+      .left_caption_large {
+        top: 0; /* 下に固定 */
+      }
+      .right_caption_large {
+        bottom: 0; /* 下に固定 */
       }
       .bottom {
         height: 8%;
@@ -170,97 +273,132 @@ chat, friend management, and social interaction." />
     </style>
   </head>
   <body>
-    <div class="outer">
-      <div class="top">
-        <a class="back" href="../user/">Back</a>
+    {% load static %}
+    <div class="split_container">
+      <div class="large left_side">
+        <img class="left_icon_large icon_large" src="{{ curr_user.icon.url }}" alt="test2">
+        <div class="caption_large_block" >
+          <span class="caption_large left_caption_large">{{ curr_user.username }}</span>
+        </div>
+      </div>
+      <div class="outer">
+        <div class="top">
+          <a class="back" href="../user/">Back</a>
 
-        <a class="username" href="../user/{{ friend.username }}">{{ friend.username }}</a>
-      </div>
-      <div class="messages" id="board">
-        {% for message in messages %}
-          {% if curr_user == message.sender_name %}
-            <div class="container right_mess">
-              <p>{{ message.description }}</p>
-              <span class="time-right">{{ message.time }}</span>
+          <a class="username" href="../user/{{ friend.username }}">{{ friend.username }}</a>
+        </div>
+        <div class="messages" id="board">
+          <form action="{% url 'load_more_messages' curr_user.username friend.username page %}" method="POST">
+            {% csrf_token %}
+            <button type="submit" name="send" class="btn btn-success" id="send_btn">Load More Messages</button>
+          </form>
+          {% for message in messages %}
+            {% if curr_user == message.sender_name %}
+              <div class="container right_mess">
+                <span>{{ message.description }}</span>
+                <span class="time-right">{{ message.time }}</span>
+              </div>
+            {% else %}
+              <div class="container left_mess">
+                <p>{{ message.description }}</p>
+                <span class="time-left">{{ message.time }}</span>
+              </div>
+            {% endif %}
+          {% endfor %}
+          
+        </div>
+        <div class="bottom">
+          <div class="small icon_container">
+            <div class="image-with-caption left-image-container">  
+              <img class="left_icon" src="{{ curr_user.icon.url }}" alt="test2">
+              <span class="caption left_caption">{{ curr_user.username }}</span>
             </div>
-          {% else %}
-            <div class="container left_mess">
-              <p>{{ message.description }}</p>
-              <span class="time-left">{{ message.time }}</span>
-            </div>
-          {% endif %}
-        {% endfor %}
-      </div>
-      <div class="bottom">
-        <form method="post" class="form-group" id="chat-box">
-          {% csrf_token %}
-          <div class="input-group mb-3">
-            <div class="input-group-prepend">
-              <input type="text" placeholder="Send a message..." name="message" id="msg_field" />
-              <button type="submit" name="send" class="btn btn-success" id="send_btn">Send</button>
+            <div class="image-with-caption right-image-container">
+              <img class="right_icon" src="{{ friend.icon.url }}" alt="test">
+              <span class="caption right_caption">{{ friend.username }}</span>
             </div>
           </div>
-        </form>
+          <form action="{% url 'chat_pair' curr_user.username friend.username %}" method="post" class="form-group" id="chat-box">
+            {% csrf_token %}
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <input type="text" placeholder="Send a message..." name="message" id="msg_field" />
+                <button type="submit" name="send" class="btn btn-success" id="send_btn">Send</button>
+              </div>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
+      <div class="large right_side">
+        <div class="caption_large_block">
+          <span class="caption_large right_caption_large">{{ friend.username }}</span>
+        </div>
+        <img class="icon_large right_icon_large" src="{{ friend.icon.url }}" alt="test">
+      </div>
 
-    <script>
-      sender_id = '{{ friend.id }}'
-      receiver_id = '{{ curr_user.id }}'
-      var messageBody = document.querySelector('.messages')
-      messageBody.scrollTop = messageBody.scrollHeight - messageBody.clientHeight
-      
-      const text = '<div class="container left_mess">' + '<p>{description}</p>' + '<span class="time-left">{time}</span>' + '</div>'
-      const text_box = '<div class="container right_mess">' + '<p>{description}</p>' + '<span class="time-right">{time}</span>' + '</div>'
-      
-      function scrolltoend() {
-        $('#board')
-          .stop()
-          .animate(
-            {
-              scrollTop: $('#board')[0].scrollHeight
-            },
-            800
-          )
-      }
-      
-      $(function () {
-        setInterval(receive, 1000)
-      })
-      
-      function receive() {
-        $.get('/api/messages/' + sender_id + '/' + receiver_id, function (data) {
-          if (data.length !== 0) {
-            for (var i = 0; i < data.length; i++) {
-              var field = text.replace('{description}', data[i].description)
-              var time = data[i].time.slice(0, 5)
-              field = field.replace('{time}', time)
-              $('#board').append(field)
-              scrolltoend()
+      <script>
+        const apiBaseUrl = "{{ api_base_url }}";  // Djangoから渡されたURLを取得
+        sender_id = '{{ friend.id }}'
+        receiver_id = '{{ curr_user.id }}'
+        var messageBody = document.querySelector('.messages')
+        messageBody.scrollTop = messageBody.scrollHeight - messageBody.clientHeight
+        
+        const text = '<div class="container left_mess">' + '<p>{description}</p>' + '<span class="time-left">{time}</span>' + '</div>'
+        const text_box = '<div class="container right_mess">' + '<p>{description}</p>' + '<span class="time-right">{time}</span>' + '</div>'
+        
+        function scrolltoend() {
+          $('#board')
+            .stop()
+            .animate(
+              {
+                scrollTop: $('#board')[0].scrollHeight
+              },
+              800
+            )
+        }
+        
+        $(function () {
+          setInterval(receive, 1000)
+        })
+        
+        function receive() {
+          $.get('/api/messages/' + sender_id + '/' + receiver_id, function (data) {
+            if (data.length !== 0) {
+              for (var i = 0; i < data.length; i++) {
+                var field = text.replace('{description}', data[i].description)
+                var time = data[i].time.slice(0, 5)
+                field = field.replace('{time}', time)
+                $('#board').append(field)
+                scrolltoend()
+              }
             }
-          }
+          })
+        }
+        //For sending
+        $(function () {
+          $('#chat-box').on('submit', function (event) {
+            event.preventDefault()
+            var message = $('#msg_field')
+            send('{{ curr_user.username }}', '{{ friend.username }}', message.val())
+            message.val('')
+          })
         })
-      }
-      //For sending
-      $(function () {
-        $('#chat-box').on('submit', function (event) {
-          event.preventDefault()
-          var message = $('#msg_field')
-          send('{{ curr_user.username }}', '{{ friend.username }}', message.val())
-          message.val('')
-        })
-      })
-      
-      function send(sender, receiver, message) {
-        $.post('/api/messages', '{"sender_name": "' + sender + '", "receiver_name": "' + receiver + '","description": "' + message + '" }', function (data) {
-          var field = text_box.replace('{description}', message)
-          var today = new Date()
-          var time = today.getHours() + ':' + today.getMinutes()
-          field = field.replace('{time}', time)
-          $('#board').append(field)
-          scrolltoend()
-        })
-      }
-    </script>
+        
+        function send(sender, receiver, message) {
+          $.post('/api/messages', '{"sender_name": "' + sender + '", "receiver_name": "' + receiver + '","description": "' + message + '" }', function (data) {
+            var field = text_box.replace('{description}', message)
+            var today = new Date()
+            var time = today.getHours() + ':' + today.getMinutes()
+            field = field.replace('{time}', time)
+            $('#board').append(field)
+            scrolltoend()
+          })
+        }
+
+        let page = 1;
+        const messageContainer = document.getElementById('board');
+
+      </script>
+    </div>
   </body>
 </html>

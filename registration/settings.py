@@ -11,11 +11,17 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+from pathlib import Path
+from dotenv import load_dotenv
 
+# .envファイルを読み込む
+load_dotenv()
+
+#SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = 'django-insecure-ltud@i7q159w7f@-!bp*z4=z90qxwymibeyn^8n+o!xg!)o^5%'
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SECRET_KEY = os.getenv("SECRET_KEY")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
@@ -24,8 +30,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
-
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1').split(',')
 
 # Application definition
 
@@ -36,12 +41,17 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "accounts",
     "app1",
+    'corsheaders',
+    "stable_diffusion",
 ]
+AUTH_USER_MODEL = 'accounts.CustomUser'
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -62,6 +72,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                'app1.context_processors.add_custom_variable',
             ],
         },
     },
@@ -77,6 +88,9 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+        "OPTIONS": {
+            "timeout": 30,
+        }
     }
 }
 
@@ -103,9 +117,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "ja"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Asia/Tokyo"
 
 USE_I18N = True
 
@@ -113,10 +127,10 @@ USE_L10N = True
 
 USE_TZ = True
 
-LOGIN_URL = "login"
+LOGIN_URL = "/login/"
 
 
-# AUTH_USER_MODEL = '.CustomUser'
+
 
 
 # Static files (CSS, JavaScript, Images)
@@ -126,8 +140,31 @@ STATIC_URL = "/static/"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# STATICFILES_DIRS = [
-#     os.path.join(BASE_DIR, "/static"),
-# ]
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
 
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
+#STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+MEDIA_ROOT = BASE_DIR.joinpath('media')
+MEDIA_URL = '/media/'
+
+# celeryでbackground処理を実行
+CELERY_BROKER_URL = 'redis://redis:6379/0'
+# CELERY_BEAT_SCHEDULE = {
+#     'run-every-10-seconds': {
+#         'task': 'app1.tasks.background_task',
+#         'schedule': 10.0,  # 10秒ごとに実行
+#     },
+# }
+
+# Ollama API URL
+OLLAMA_API_URL = os.getenv("OLLAMA_API_URL")
+print(f'ollama url:{OLLAMA_API_URL}')
+
+API_BASE_URL = "http://web:8000"  # Docker内でのAPIエンドポイント
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True

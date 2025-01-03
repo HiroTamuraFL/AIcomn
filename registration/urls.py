@@ -22,9 +22,13 @@ urlpatterns = [
     
     
     path("chat/<str:username>", views.chat, name="chat"),
+    path("chat/pair/<str:sender>_<str:receiver>", views.chat, name="chat_pair"),
+    
     path('api/messages/<int:sender>/<int:receiver>', views.message_list, name='message-detail'),
     path('api/messages', views.message_list, name='message-list'),
-]
+    path("api/chat/messages/<str:sender>/<str:receiver>/<int:page>", views.load_more_messages, name="load_more_messages"),
+
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
 if settings.DEBUG:
