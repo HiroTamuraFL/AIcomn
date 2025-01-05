@@ -65,14 +65,6 @@ services:
     networks:
       - my_network
 
-  # Stable Diffusion のサービスをインクルード
-  stable-diffusion:
-    extends:
-      file: ./stable-diffusion-webui-docker/docker-compose.yml
-      service: auto # 子ファイルで定義されているサービス名を指定
-    networks:
-      - my_network
-
 networks:
   my_network:
     driver: bridge
